@@ -1,12 +1,147 @@
 package com.tcg.olga.desktop;
 
+import java.awt.*;
+import java.awt.event.*;
+import java.net.URL;
+
+import javax.swing.*;
+
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.tcg.olga.Game;
 
-public class DesktopLauncher {
+public class DesktopLauncher extends JFrame implements ActionListener{
+
+	private JTextField widthField, heightField;
+	
+	private JButton run, website;
+	
+	private JCheckBox fullScreenB, vSyncB;
+	
+	private boolean fullScreen, vSync;
+	
+	private int width, height;
+	
+	private static final long serialVersionUID = -6747633674982423257L;
+
 	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
-		new LwjglApplication(new Game(), config);
+		new DesktopLauncher();
+	}
+	
+	public DesktopLauncher() {
+		fullScreenB = new JCheckBox("Fullscreen");
+		fullScreenB.setSelected(false);
+		fullScreenB.addActionListener(this);
+		vSyncB = new JCheckBox("vSync");
+		vSyncB.setSelected(true);
+		fullScreen = fullScreenB.isSelected();
+		vSync = vSyncB.isSelected();
+
+		widthField = new JTextField("800", 5);
+		heightField = new JTextField("600", 5);
+		
+		run = new JButton("Run");
+		run.addActionListener(this);
+
+		website = new JButton("Visit our website!");
+		website.addActionListener(this);
+		
+		JPanel title = new JPanel();
+		title.setLayout(new FlowLayout());
+		title.add(new JLabel(Game.TITLE));
+	    
+	    JPanel screenSettings = new JPanel();
+	    screenSettings.setLayout(new FlowLayout());
+	    screenSettings.add(new JLabel("Width"));
+	    screenSettings.add(widthField);
+	    screenSettings.add(new JLabel("Height"));
+	    screenSettings.add(heightField);
+	    screenSettings.add(fullScreenB);
+	    screenSettings.add(vSyncB);
+	    
+	    JPanel settings = new JPanel();
+	    settings.setLayout(new BorderLayout());
+	    settings.add(screenSettings, BorderLayout.NORTH);
+	    
+	    JPanel buttons = new JPanel();
+	    buttons.setLayout(new FlowLayout());
+	    buttons.add(run);
+	    buttons.add(website);
+	    
+	    getContentPane().add(title, BorderLayout.NORTH);
+	    getContentPane().add(settings, BorderLayout.CENTER);
+	    getContentPane().add(buttons, BorderLayout.SOUTH);
+	    
+	    setSize(400, 125);
+	    setTitle("Tiny Country Games Launcher");
+	    setLocationRelativeTo(null);
+	    setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	    setResizable(false);
+	    
+	    ImageIcon img = new ImageIcon(this.getClass().getResource("16.png"));
+
+		widthField.setToolTipText("Width of the game");
+		heightField.setToolTipText("Height of the game");
+		
+		run.setToolTipText("Runs the game");
+		website.setToolTipText("Opens http://tinycountrygames.com/ in default browser");
+		
+		fullScreenB.setToolTipText("Check if you want to run game in fullscreen");
+		vSyncB.setToolTipText("Check if you want to enable vSync");
+	    
+	    setIconImage(img.getImage());
+	    setVisible(true);
+	}
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		if(e.getSource() == website) {
+			try {
+				Desktop.getDesktop().browse(new URL("http://tinycountrygames.com/").toURI());
+			} catch (Exception e1) {
+				e1.printStackTrace();
+			}
+		}
+		if(e.getSource() == fullScreenB) {
+			widthField.setEditable(!fullScreenB.isSelected());
+			heightField.setEditable(!fullScreenB.isSelected());
+			int tw = 800, th = 600;
+			if(fullScreenB.isSelected()) {
+				tw = Toolkit.getDefaultToolkit().getScreenSize().width;
+				th = Toolkit.getDefaultToolkit().getScreenSize().height;
+			} 
+			widthField.setText("" + tw);
+			heightField.setText("" + th);
+		}
+		if(e.getSource() == run) {
+			fullScreen = fullScreenB.isSelected();
+			vSync = vSyncB.isSelected();
+			if(fullScreen) {
+				width = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
+				height = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
+			} else {
+				try {
+					width = new Integer(widthField.getText().trim()).intValue();
+				} catch(NumberFormatException e1) {
+					JOptionPane.showMessageDialog(this, "Width must be a number!", "Invalid", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+				try {
+					height = new Integer(heightField.getText().trim()).intValue();
+				} catch(NumberFormatException e1) {
+					JOptionPane.showMessageDialog(this, "Height must be a number!", "Invalid", JOptionPane.ERROR_MESSAGE);
+					return;
+				}
+			}
+			setVisible(false);
+			LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+			config.width = width;
+			config.height = height;
+			config.fullscreen = fullScreen;
+			config.vSyncEnabled = vSync;
+			Game g = new Game();
+			new LwjglApplication(g, config);
+		}
+		
 	}
 }
