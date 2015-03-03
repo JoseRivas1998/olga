@@ -12,6 +12,7 @@ public class PlayState extends GameState {
 
 	private MyCamera cam;
 	private Cursor c;
+	private Olga o;
 	
 	public PlayState(GameStateManager gsm) {
 		super(gsm);
@@ -21,6 +22,7 @@ public class PlayState extends GameState {
 	protected void init() {
 		cam = new MyCamera(Game.SIZE, true);
 		c = new Cursor();
+		o = new Olga();
 	}
 
 	@Override
@@ -30,11 +32,17 @@ public class PlayState extends GameState {
 
 	@Override
 	public void update(float dt) {
-		
+		o.update(c);
 	}
 
 	@Override
 	public void draw(SpriteBatch sb, ShapeRenderer sr, float dt) {
+		
+		sb.begin();
+		sb.setProjectionMatrix(cam.combined);
+		o.draw(sr, sb, dt);
+		sb.end();
+		
 		sr.begin(ShapeType.Line);
 		sr.setColor(Constants.randomColor());
 		sr.setProjectionMatrix(cam.combined);
@@ -50,8 +58,7 @@ public class PlayState extends GameState {
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		o.dispose();
 	}
 
 }
