@@ -1,6 +1,13 @@
 package com.tcg.olga;
 
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import javax.swing.JOptionPane;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.controllers.Controllers;
@@ -24,6 +31,10 @@ public class Game extends ApplicationAdapter {
 	
 	public static boolean FIRST;
 	
+	public static int SCORE, HIGHSCORE;
+	
+	private Save s;
+	
 	@Override
 	public void create () {
 		float width = Gdx.graphics.getWidth();
@@ -34,6 +45,31 @@ public class Game extends ApplicationAdapter {
 		SIZE.set(width, height);
 		CENTER.set(width * .5f, height * .5f);
 		
+		try {
+			FileInputStream file = new FileInputStream("oglasav.dat");
+			ObjectInputStream filein = new ObjectInputStream(file);
+			s = (Save) filein.readObject();
+			filein.close();
+			file.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+			boolean f = Gdx.graphics.isFullscreen();
+			if(f) {
+				Gdx.graphics.setDisplayMode(800, 600, false);
+			}
+			JOptionPane.showMessageDialog(null, "Could not load \"oglasav.dat\", a new one will be created on exit", Game.TITLE, JOptionPane.INFORMATION_MESSAGE);
+			if(f) {
+				int width1 = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
+				int height1 = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
+				Gdx.graphics.setDisplayMode(width1, height1, true);
+			}
+			s = new Save();
+			s.setHighscore(0);
+			s.setScore(0);
+		}
+		
+		Game.SCORE = s.getScore();
+		Game.HIGHSCORE = s.getHighscore();
 		
 		ftime = 0;
 		frames = 0;
@@ -43,7 +79,6 @@ public class Game extends ApplicationAdapter {
 		
 		Gdx.input.setInputProcessor(new MyInputProcessor());
 		Controllers.addListener(new MyControllerProcessor());
-		Gdx.input.setCursorCatched(Gdx.graphics.isFullscreen());
 		gsm = new GameStateManager();
 	}
  
@@ -76,7 +111,6 @@ public class Game extends ApplicationAdapter {
 				int height = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;
 				Gdx.graphics.setDisplayMode(width, height, true);
 			}
-			Gdx.input.setCursorCatched(Gdx.graphics.isFullscreen());
 		}
 		
 		MyInput.update();
@@ -111,5 +145,14 @@ public class Game extends ApplicationAdapter {
 	public void dispose() {
 		gsm.dispose();
 		res.removeAll();
+		try {
+		 	FileOutputStream fileOut = new FileOutputStream("oglasav.dat");
+		 	ObjectOutputStream out = new ObjectOutputStream(fileOut);
+		 	out.writeObject(s);
+		 	out.close();
+		 	fileOut.close();
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -8,6 +8,8 @@ public class Cursor extends Entity {
 
 	public Cursor() {
 		super();
+		setWidth(10);
+		setHeight(10);
 	}
 	
 	public void update() {

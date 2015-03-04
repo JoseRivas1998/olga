@@ -2,7 +2,6 @@ package com.tcg.olga.gamestates;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.tcg.olga.*;
 import com.tcg.olga.entities.*;
@@ -13,6 +12,7 @@ public class PlayState extends GameState {
 	private MyCamera cam;
 	private Cursor c;
 	private Olga o;
+	private Crayon cr;
 	
 	public PlayState(GameStateManager gsm) {
 		super(gsm);
@@ -23,6 +23,8 @@ public class PlayState extends GameState {
 		cam = new MyCamera(Game.SIZE, true);
 		c = new Cursor();
 		o = new Olga();
+		cr = new Crayon();
+		Game.SCORE = 0;
 	}
 
 	@Override
@@ -32,7 +34,7 @@ public class PlayState extends GameState {
 
 	@Override
 	public void update(float dt) {
-		o.update(c);
+		o.update(c, cr);
 	}
 
 	@Override
@@ -41,13 +43,8 @@ public class PlayState extends GameState {
 		sb.begin();
 		sb.setProjectionMatrix(cam.combined);
 		o.draw(sr, sb, dt);
+		cr.draw(sr, sb, dt);
 		sb.end();
-		
-		sr.begin(ShapeType.Line);
-		sr.setColor(Constants.randomColor());
-		sr.setProjectionMatrix(cam.combined);
-		c.draw(sr, sb, dt);
-		sr.end();
 
 	}
 
@@ -59,6 +56,7 @@ public class PlayState extends GameState {
 	@Override
 	public void dispose() {
 		o.dispose();
+		cr.dispose();
 	}
 
 }

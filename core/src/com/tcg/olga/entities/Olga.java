@@ -5,6 +5,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
+import com.tcg.olga.Constants;
 import com.tcg.olga.Game;
 
 public class Olga extends Entity {
@@ -14,7 +16,7 @@ public class Olga extends Entity {
 	
 	private float originX, originY, degrees, radians;
 	
-	private final float speed = 2.5f;
+	private float speed = 2.5f;
 	
 	public Olga() {
 		super();
@@ -26,7 +28,7 @@ public class Olga extends Entity {
 		setY(Game.CENTER.y - (getHeight() * .5f));
 	}
 
-	public void update(Cursor c) {
+	public void update(Cursor c, Crayon cr) {
 		
 		float dx = c.getX() - getCenter().x;
 		float dy = c.getY() - getCenter().y;
@@ -39,6 +41,12 @@ public class Olga extends Entity {
 		
 		bounds.x += vel.x;
 		bounds.y += vel.y;
+		
+		if(Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+			speed = 0;
+		} else {
+			speed = 5 * (Constants.distance(getPosition(), c.getPosition()) / Constants.distance(new Vector2(0, 0), Game.CENTER));
+		}
 		
 		originX = (getWidth() * .5f);
 		originY = (getHeight() * .5f);
@@ -54,6 +62,11 @@ public class Olga extends Entity {
 		}
 		if(bounds.y < 0) {
 			bounds.y = 0;
+		}
+		
+		if(collidingWith(cr)) {
+//			Game.SCORE++;
+			cr.resetPos();
 		}
 	}
 	
