@@ -13,6 +13,8 @@ public class PlayState extends GameState {
 	private Cursor c;
 	private Olga o;
 	private Crayon cr;
+	private float time;
+	private HUD hud;
 	
 	public PlayState(GameStateManager gsm) {
 		super(gsm);
@@ -25,16 +27,27 @@ public class PlayState extends GameState {
 		o = new Olga();
 		cr = new Crayon();
 		Game.SCORE = 0;
+		time = 90;
+		hud = new HUD();
+		Game.res.getMusic("play").play();
 	}
 
 	@Override
 	public void handleInput() {
 		c.update();
+		o.handleInput();
 	}
 
 	@Override
 	public void update(float dt) {
 		o.update(c, cr);
+		time -= dt;
+		if(Game.SCORE > Game.HIGHSCORE) {
+			Game.HIGHSCORE = Game.SCORE;
+		}
+		if(time <= 0) {
+			gsm.setState(gsm.GAMEOVER);
+		}
 	}
 
 	@Override
@@ -44,6 +57,7 @@ public class PlayState extends GameState {
 		sb.setProjectionMatrix(cam.combined);
 		o.draw(sr, sb, dt);
 		cr.draw(sr, sb, dt);
+		hud.render(sb, time);
 		sb.end();
 
 	}

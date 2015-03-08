@@ -16,12 +16,10 @@ public class GameStateManager {
 	
 	private GameState gamestate;
 
-	public final int CONTROLLER = 0;
-	public final int SPLASH = 1;
-	public final int TITLE = 2;
-	public final int TUTORIAL = 3;
-	public final int PLAY = 4;
-	public final int GAMEOVER = 5;
+	public final int SPLASH = 0;
+	public final int TITLE = 1;
+	public final int PLAY = 2;
+	public final int GAMEOVER = 3;
 	
 	private boolean screenShot;
 	
@@ -31,15 +29,24 @@ public class GameStateManager {
 		sb = new SpriteBatch();
 		sr = new ShapeRenderer();
 		paper = new MyCamera(Game.SIZE, true);
-		setState(PLAY);
+		setState(SPLASH);
 	}
 	
 	public void setState(int state) {
 		Game.res.stopMidi();
 		Game.res.stopMusic();
 		if(gamestate != null) gamestate.dispose();
+		if(state == SPLASH) {
+			gamestate = new SplashState(this);
+		}
+		if(state == TITLE) {
+			gamestate = new TitleState(this);
+		}
 		if(state == PLAY) {
 			gamestate = new PlayState(this);
+		}
+		if(state == GAMEOVER) {
+			gamestate = new GameOverState(this);
 		}
 	}
 	
@@ -60,6 +67,8 @@ public class GameStateManager {
 		for(int y = 25; y < Game.SIZE.y; y+= 25) {
 			sr.line(0, y, Game.SIZE.x, y);
 		}
+		sr.setColor(Constants.rgb(255, 140, 145, 255));
+		sr.line(50, 0, 50, Game.SIZE.y);
 		sr.end();
 		
 		gamestate.draw(sb, sr, dt);

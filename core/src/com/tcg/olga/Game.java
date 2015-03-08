@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.controllers.Controllers;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.math.Vector2;
 import com.tcg.olga.managers.*;
@@ -77,8 +78,21 @@ public class Game extends ApplicationAdapter {
 		
 		res = new Content();
 		
+		res.loadSound("sound", "cursor.wav", "cursor");
+		res.loadSound("sound", "crayon.wav", "crayon");
+		res.loadSound("sound", "select.wav", "select");
+		
+		res.loadMusic("music", "title.ogg", "title", true);
+		res.loadMusic("music", "play.ogg", "play", true);
+		res.loadMusic("music", "gameover.ogg", "gameover", true);
+
+		res.loadBitmapFont("font", "font.ttf", "main", 36, Color.BLACK);
+		res.loadBitmapFont("font", "font.ttf", "large", 56, Color.BLACK);
+		res.loadBitmapFont("font", "font.ttf", "mItems", 46, Color.BLACK);
+		
 		Gdx.input.setInputProcessor(new MyInputProcessor());
 		Controllers.addListener(new MyControllerProcessor());
+		Gdx.input.setCursorCatched(Gdx.graphics.isFullscreen());
 		gsm = new GameStateManager();
 	}
  
@@ -121,20 +135,13 @@ public class Game extends ApplicationAdapter {
 		SIZE.set(width, height);
 		CENTER.set(width * .5f, height * .5f);
 		gsm.resize(Game.SIZE);
+		Gdx.input.setCursorCatched(Gdx.graphics.isFullscreen());
 	}
 
 	public static String getScore(int score) {
 		if(score < 10) {
-			return "000000" + score;
-		} else if(score < 100) {
-			return "00000" + score;
-		} else if(score < 1000) {
-			return "0000" + score;
-		} else if(score < 10000) {
-			return "000" + score;
-		} else if(score < 100000) {
 			return "00" + score;
-		} else if(score < 1000000) {
+		} else if(score < 100) {
 			return "0" + score;
 		} else {
 			return "" + score;
@@ -145,6 +152,8 @@ public class Game extends ApplicationAdapter {
 	public void dispose() {
 		gsm.dispose();
 		res.removeAll();
+		s.setHighscore(Game.HIGHSCORE);
+		s.setScore(Game.SCORE);
 		try {
 		 	FileOutputStream fileOut = new FileOutputStream("oglasav.dat");
 		 	ObjectOutputStream out = new ObjectOutputStream(fileOut);
